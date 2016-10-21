@@ -18,8 +18,16 @@ buildscript {
 
 repositories {
     maven {
-        name "BrassGoggledCoders maven"
-        url "https://maven.brassgoggledcoders.xyz"
+        name "Base"
+        url "http://blamejared.com/maven"
+    }
+    maven {
+        name 'Mobius'
+        url 'http://mobiusstrip.eu/maven'
+    }
+    maven {
+        name 'JEI'
+        url "http://dvs1.progwml6.com/files/maven"
     }
 }
 
@@ -27,11 +35,11 @@ apply plugin: 'net.minecraftforge.gradle.forge'
 
 version = "${minecraft_version}-${opentransport_version}." + System.getenv("bamboo_buildNumber")
 
-group= "xyz.brassgoggledcoders.opentransport"
+group = "xyz.brassgoggledcoders.opentransport"
 archivesBaseName = "OpenTransport"
 
 minecraft {
-    version = "${minecraft_version}-${forge_version}-${minecraft_version}"
+    version = "${minecraft_version}-${forge_version}"
 
     mappings = "${mappings_version}"
     runDir = "run/"
@@ -42,7 +50,7 @@ minecraft {
 }
 
 dependencies {
-    compile "xyz.brassgoggledcoders.boilerplate:Boilerplate:${minecraft_version}-${boilerplate_version}:deobf"
+    compile "com.teamacronymcoders.base:base:${minecraft_version}-${base_version}:deobf"
 }
 
 task getLibraries {
@@ -54,28 +62,36 @@ task getLibraries {
     def downloads = new ArrayList<Tuple>();
 
     def ironchest = 'ironchest-' + minecraft_version + '-' + ironchest_version + '.jar'
-    def ironchestSource = 'http://minecraft.curseforge.com/projects/iron-chests/files/2306186/download'
+    def ironchestSource = 'https://minecraft.curseforge.com/projects/iron-chests/files/2321288/download'
+
+    def ie = 'ImmersiveEngineering-' + immersive_engineering_version + '.jar'
+    def ieSource = ''
+
+    def railcraft = 'Railcraft_' + minecraft_version + '-' + railcraft_version + '-dev.jar'
+    def railcraftSource = 'http://www.railcraft.info/ivy/com.headlamp-games/Railcraft/' + railcraft_version + '/' + railcraft
 
     downloads.add(new Tuple(ironchest, ironchestSource))
+    downloads.add(new Tuple(ie, ieSource))
+    downloads.add(new Tuple(railcraft, railcraftSource))
 
     libsFolder.listFiles().each { file ->
         def isInDownloadList = false;
-        downloads.each {download ->
-            if(file.name.equals(download.get(0).toString())) {
+        downloads.each { download ->
+            if (file.name == download.get(0).toString()) {
                 isInDownloadList = true;
             }
         }
-        if(!isInDownloadList || file.size() < 5) {
+        if (!isInDownloadList || file.size() < 5) {
             println "Deleting file " + file.name
             file.delete();
         }
     }
 
-    downloads.each{download ->
+    downloads.each { download ->
         def fileLocation = new File('libs', download.get(0).toString())
-        if(!fileLocation.exists())  {
+        if (!fileLocation.exists()) {
             def downloadString = download.get(1).toString()
-            if(downloadString.contains(" ")) {
+            if (downloadString.contains(" ")) {
                 downloadString = downloadString.replace(" ", "%20");
             }
             println "Downloading " + download.get(0).toString()
@@ -88,27 +104,24 @@ task getLibraries {
     }
 }
 
-
-compileJava {
-    sourceCompatibility = 1.8
-    targetCompatibility = 1.8
-}
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
 
 processResources
-{
-    inputs.property "version", project.version
-    inputs.property "mcversion", project.minecraft.version
+        {
+            inputs.property "version", project.version
+            inputs.property "mcversion", project.minecraft.version
 
-    from(sourceSets.main.resources.srcDirs) {
-        include 'mcmod.info'
+            from(sourceSets.main.resources.srcDirs) {
+                include 'mcmod.info'
 
-        expand 'version':project.version, 'mcversion':project.minecraft.version
-    }
+                expand 'version': project.version, 'mcversion': project.minecraft.version
+            }
 
-    from(sourceSets.main.resources.srcDirs) {
-        exclude 'mcmod.info'
-    }
-}
+            from(sourceSets.main.resources.srcDirs) {
+                exclude 'mcmod.info'
+            }
+        }
 
 jar {
     classifier = ""

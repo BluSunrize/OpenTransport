@@ -1,26 +1,26 @@
 package xyz.brassgoggledcoders.opentransport.modules.vanilla;
 
+import com.teamacronymcoders.base.modulesystem.Module;
+import com.teamacronymcoders.base.modulesystem.ModuleBase;
 import net.minecraft.init.Blocks;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import xyz.brassgoggledcoders.boilerplate.module.Module;
-import xyz.brassgoggledcoders.boilerplate.module.ModuleBase;
 import xyz.brassgoggledcoders.opentransport.OpenTransport;
-import xyz.brassgoggledcoders.opentransport.api.blockcontainers.IBlockContainer;
-import xyz.brassgoggledcoders.opentransport.blocks.BlockContainerBase;
-import xyz.brassgoggledcoders.opentransport.registries.BlockContainerRegistry;
+import xyz.brassgoggledcoders.opentransport.api.blockwrappers.IBlockWrapper;
+import xyz.brassgoggledcoders.opentransport.blocks.BlockWrapperBase;
+import xyz.brassgoggledcoders.opentransport.registries.BlockWrapperRegistry;
 
-@Module(mod = OpenTransport.MODID)
+@Module(OpenTransport.MODID)
 public class VanillaModule extends ModuleBase {
-	public static IBlockContainer ENDER_CHEST;
+    public static IBlockWrapper ENDER_CHEST;
 
-	@Override
-	public String getName() {
-		return "Vanilla";
-	}
+    @Override
+    public String getName() {
+        return "Vanilla";
+    }
 
-	@Override
-	public void preInit(FMLPreInitializationEvent event) {
-		ENDER_CHEST = new BlockContainerBase(Blocks.ENDER_CHEST).setClickInteraction(new EnderChestInteraction());
-		BlockContainerRegistry.registerContainer(ENDER_CHEST);
-	}
+    @Override
+    public void preInit(FMLPreInitializationEvent event) {
+        ENDER_CHEST = new BlockWrapperBase(Blocks.ENDER_CHEST).setClickInteraction(new EnderChestInteraction());
+        BlockWrapperRegistry.registerContainer(ENDER_CHEST);
+    }
 }
