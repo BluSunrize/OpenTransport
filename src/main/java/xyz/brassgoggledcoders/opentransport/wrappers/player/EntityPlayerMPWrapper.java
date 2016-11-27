@@ -1,16 +1,21 @@
 package xyz.brassgoggledcoders.opentransport.wrappers.player;
 
+import com.teamacronymcoders.base.client.gui.GuiCarrier;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.inventory.Container;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryEnderChest;
 import net.minecraft.item.ItemStack;
+import net.minecraft.stats.Achievement;
+import net.minecraft.stats.StatBase;
+import net.minecraft.tileentity.TileEntityCommandBlock;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumHandSide;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.world.IInteractionObject;
 import net.minecraft.world.LockCode;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
@@ -20,6 +25,7 @@ import xyz.brassgoggledcoders.opentransport.api.entities.IHolderEntity;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.UUID;
 
 public class EntityPlayerMPWrapper extends EntityPlayerMP {
     protected EntityPlayerMP entityPlayer;
@@ -34,6 +40,14 @@ public class EntityPlayerMPWrapper extends EntityPlayerMP {
         this.blockWrapper = containerHolder.getBlockWrapper();
         this.worldObj = entityPlayer.worldObj;
         this.connection = entityPlayer.connection;
+        this.capabilities = entityPlayer.capabilities;
+        this.openContainer = entityPlayer.openContainer;
+        this.interactionManager.thisPlayerMP = entityPlayer;
+    }
+
+    private void openGui() {
+        this.getEntityPlayer().openGui(OpenTransport.instance, GuiCarrier.ENTITY.ordinal(),this.getEntityWorld(),
+                this.getEntity().getEntityId(), 0, 0);
     }
 
     @Override
@@ -57,9 +71,7 @@ public class EntityPlayerMPWrapper extends EntityPlayerMP {
 
     @Override
     public void openGui(@Nonnull Object mod, int id, @Nonnull World world, int posX, int posY, int poxZ) {
-        this.getEntityPlayer()
-                .openGui(OpenTransport.instance, this.getEntity().getEntityId(), this.getEntity().worldObj, posX, posY,
-                        poxZ);
+        this.openGui();
     }
 
     @Override
@@ -111,7 +123,17 @@ public class EntityPlayerMPWrapper extends EntityPlayerMP {
 
     @Override
     public void displayGUIChest(IInventory iInventory) {
-        this.getEntityPlayer().displayGUIChest(iInventory);
+        this.openGui();
+    }
+
+    @Override
+    public void displayGuiCommandBlock(TileEntityCommandBlock commandBlock) {
+        this.openGui();
+    }
+
+    @Override
+    public void displayGui(IInteractionObject guiOwner) {
+        this.openGui();
     }
 
     @Override
@@ -132,6 +154,26 @@ public class EntityPlayerMPWrapper extends EntityPlayerMP {
     }
 
     @Override
+    public boolean hasAchievement(@Nonnull Achievement achievement) {
+        return this.getEntityPlayer().hasAchievement(achievement);
+    }
+
+    @Override
+    public void addStat(@Nonnull StatBase stat) {
+        this.getEntityPlayer().addStat(stat);
+    }
+
+    @Override
+    public void addStat(StatBase stat, int amount) {
+        this.getEntityPlayer().addStat(stat, amount);
+    }
+
+    @Override
+    public void takeStat(StatBase stat) {
+        this.getEntityPlayer().takeStat(stat);
+    }
+
+    @Override
     @Nonnull
     public <T> T getCapability(@Nonnull Capability<T> capability, @Nonnull EnumFacing facing) {
         return this.getEntityPlayer().getCapability(capability, facing);
@@ -142,7 +184,25 @@ public class EntityPlayerMPWrapper extends EntityPlayerMP {
         return this.getEntityPlayer().hasCapability(capability, facing);
     }
 
-    public EntityPlayer getEntityPlayer() {
+    @Override
+    public void sendContainerToPlayer(Container container)
+    {
+        this.getEntityPlayer().openContainer = this.openContainer;
+        this.getEntityPlayer().sendContainerToPlayer(container);
+    }
+
+    @Override
+    @Nonnull
+    public UUID getPersistentID() {
+        return this.getEntityPlayer().getPersistentID();
+    }
+
+    @Override
+    public void addChatMessage(@Nonnull ITextComponent component) {
+        this.getEntityPlayer().addChatMessage(component);
+    }
+
+    public EntityPlayerMP getEntityPlayer() {
         return entityPlayer;
     }
 

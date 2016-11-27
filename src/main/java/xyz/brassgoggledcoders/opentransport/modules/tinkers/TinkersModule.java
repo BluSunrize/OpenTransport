@@ -1,4 +1,4 @@
-package xyz.brassgoggledcoders.opentransport.modules.ironchest;
+package xyz.brassgoggledcoders.opentransport.modules.tinkers;
 
 import com.teamacronymcoders.base.modulesystem.Module;
 import com.teamacronymcoders.base.modulesystem.dependencies.IDependency;
@@ -11,21 +11,21 @@ import javax.annotation.Nonnull;
 import java.util.List;
 
 @Module(OpenTransport.MODID)
-public class IronChestModule extends ModuleWrapperBase {
+public class TinkersModule extends ModuleWrapperBase {
     @Override
     public String getName() {
-        return "Iron Chest";
+        return "Tinkers' Construct";
     }
 
     @Override
     public List<IDependency> getDependencies(List<IDependency> dependencies) {
-        dependencies.add(new ModDependency("ironchest"));
+        dependencies.add(new ModDependency("tconstruct"));
         return dependencies;
     }
 
     @Nonnull
     @Override
     public IHasWrappers getWrapperHolder() {
-        return new IronChestBlockWrappers();
+        return new TinkersBlockWrappers();
     }
 }

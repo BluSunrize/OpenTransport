@@ -3,6 +3,7 @@ package xyz.brassgoggledcoders.opentransport.boats.entities;
 import com.google.common.base.Optional;
 import com.teamacronymcoders.base.client.gui.IHasGui;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityBoat;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
@@ -13,9 +14,11 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.common.capabilities.Capability;
 import xyz.brassgoggledcoders.opentransport.api.blockwrappers.IBlockWrapper;
 import xyz.brassgoggledcoders.opentransport.api.entities.IHolderEntity;
 import xyz.brassgoggledcoders.opentransport.boats.items.ItemBoatHolder;
@@ -40,6 +43,12 @@ public class EntityBoatHolder extends EntityBoatBase implements IHolderEntity<En
         super.entityInit();
         this.dataManager.register(BLOCK_CONTAINER_NAME, "");
         this.dataManager.register(ITEM_BOAT, Optional.<ItemStack>absent());
+    }
+
+    @Override
+    public void onUpdate() {
+        super.onUpdate();
+        this.getBlockWrapper().tick();
     }
 
     @Override
@@ -80,6 +89,14 @@ public class EntityBoatHolder extends EntityBoatBase implements IHolderEntity<En
         this.dataManager.set(BLOCK_CONTAINER_NAME, blockWrapper.getUnlocalizedName());
         this.blockWrapper = blockWrapper;
         this.blockWrapper.setHolder(this);
+    }
+
+    @Override
+    public Entity getEmptyEntity() {
+        EntityBoat entityBoat = new EntityBoat(this.getEntityWorld());
+        entityBoat.setBoatType(this.getBoatType());
+        entityBoat.setLocationAndAngles(this.posX, this.posY, this.posZ, this.rotationYaw, this.rotationPitch);
+        return entityBoat;
     }
 
     @Override
@@ -126,4 +143,18 @@ public class EntityBoatHolder extends EntityBoatBase implements IHolderEntity<En
     public Container getServerGuiElement(int ID, EntityPlayer player, World world, BlockPos blockPos) {
         return this.getBlockWrapper().getInterface().getContainer(player, this, this.getBlockWrapper());
     }
+
+    @Override
+    public boolean hasCapability(@Nonnull Capability<?> capability, @Nullable EnumFacing facing) {
+        return this.getBlockWrapper().hasCapability(capability, facing) || super.hasCapability(capability, facing);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    @Nonnull
+    public <T> T getCapability(@Nonnull Capability<T> capability, @Nullable EnumFacing facing) {
+        return this.getBlockWrapper().hasCapability(capability, facing) ?
+                this.getBlockWrapper().getCapability(capability, facing) : super.getCapability(capability, facing);
+    }
 }
+

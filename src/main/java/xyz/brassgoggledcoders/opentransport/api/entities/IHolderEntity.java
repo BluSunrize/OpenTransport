@@ -11,6 +11,12 @@ public interface IHolderEntity<T extends Entity> {
 
     void setBlockWrapper(IBlockWrapper blockWrapper);
 
+    Entity getEmptyEntity();
+
+    default boolean getRedstonePower() {
+        return false;
+    }
+
     default boolean isUseableByPlayer(EntityPlayer entityPlayer) {
         return !this.getEntity().isDead && entityPlayer.getDistanceSqToEntity(this.getEntity()) <= 64.0D;
     }

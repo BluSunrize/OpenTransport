@@ -28,11 +28,11 @@ import xyz.brassgoggledcoders.opentransport.api.blockwrappers.IBlockWrapper;
 import xyz.brassgoggledcoders.opentransport.boats.entities.EntityBoatHolder;
 
 import javax.annotation.Nonnull;
-import java.util.ArrayList;
 import java.util.List;
 
 public class ItemBoatHolder extends ItemBoat implements IHasModel/*, IHasItemRenderHandler*/ {
     IBlockWrapper firstContainer;
+    boolean creativeTabSet = false;
 
     public ItemBoatHolder(IBlockWrapper firstContainer, CreativeTabs tab) {
         super(EntityBoat.Type.OAK);
@@ -105,12 +105,13 @@ public class ItemBoatHolder extends ItemBoat implements IHasModel/*, IHasItemRen
                         .isEmpty()) {
                     return new ActionResult<>(EnumActionResult.FAIL, itemStack);
                 } else {
-                    if (!world.isRemote) {
-                        world.spawnEntityInWorld(entityBoatHolder);
-                    }
-
                     if (!entityPlayer.capabilities.isCreativeMode) {
                         --itemStack.stackSize;
+                    }
+
+                    if (!world.isRemote) {
+                        world.spawnEntityInWorld(entityBoatHolder);
+                        entityBoatHolder.getBlockWrapper().onPlace(entityPlayer, hand, itemStack);
                     }
 
                     this.increaseStat(entityPlayer);
@@ -162,6 +163,16 @@ public class ItemBoatHolder extends ItemBoat implements IHasModel/*, IHasItemRen
         }
     }
 
+    @Override
+    @Nonnull
+    public Item setCreativeTab(@Nonnull CreativeTabs tab) {
+        if (!creativeTabSet) {
+            super.setCreativeTab(tab);
+            this.creativeTabSet = true;
+        }
+        return this;
+    }
+
     public EntityBoat.Type getType(ItemStack itemStack) {
         return EntityBoat.Type.values()[itemStack.getItemDamage()];
     }
@@ -190,14 +201,8 @@ public class ItemBoatHolder extends ItemBoat implements IHasModel/*, IHasItemRen
     }
 
     @Override
-    public List<String> getModelNames() {
-        List<String> models = new ArrayList<>();
-        models.add("boat");
-        return models;
+    public List<String> getModelNames(List<String> modelNames) {
+        modelNames.add("boat");
+        return modelNames;
     }
-/* TODO RENDERING AGAIN
-    @Override
-	public String itemRenderPath() {
-		return "xyz.brassgoggledcoders.opentransport.boats.renderers.RenderItemHolderBoat";
-	}*/
 }
